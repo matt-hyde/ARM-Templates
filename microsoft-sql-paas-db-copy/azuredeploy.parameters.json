@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sqlServerName": {
+      "value": "test-sql-srv-01"
+    },
+    "sqlDatabases": {
+      "value": [
+        {
+          "databaseName": "databasename1",
+          "sqlDatabaseSku": {
+            "name": "GP_S_Gen5",
+            "tier": "GeneralPurpose",
+            "family": "Gen5",
+            "capacity": 2
+          },
+          "sqlDatabaseProperties": {
+            "collation": "SQL_Latin1_General_CP1_CI_AS",
+            "zoneRedundant": false,
+            "licenseType": "BasePrice",
+            "minCapacity": "0.5",
+            "storageAccountType": "GRS",
+            "autoPauseDelay": -1
+          }
+        },
+        {
+          "databaseName": "databasename2",
+          "sqlDatabaseSku": {
+            "name": "GP_S_Gen5",
+            "tier": "GeneralPurpose",
+            "family": "Gen5",
+            "capacity": 2
+          },
+          "sqlDatabaseProperties": {
+            "collation": "SQL_Latin1_General_CP1_CI_AS",
+            "zoneRedundant": false,
+            "licenseType": "BasePrice",
+            "minCapacity": "0.5",
+            "storageAccountType": "GRS",
+            "autoPauseDelay": -1
+          }
+        }
+      ]
+    },
+    "sqlpublicNetworkAccess": {
+      "value": "Disabled"
+    },
+    "sqlAdministratorLogin": {
+      "value": "sql-admin"
+    },
+    "sqlAdministratorLoginPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx/resourceGroups/xxxxxxx/providers/Microsoft.KeyVault/vaults/xxxxxxx"
+        },
+        "secretName": "xxxxxx"
+      }
+    },
+    "sqlDatabaseBackupLongTermRetentionPolicies": {
+      "value": {
+        "weeklyRetention": "P1W",
+        "monthlyRetention": "P4W",
+        "yearlyRetention": "P24W",
+        "weekOfYear": 1
+      }
+    },
+    "resourceTags": {
+      "value": {
+        "Environment": "Development"
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logAnalyticsWorkspaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace Resource Group Name"
+      }
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace Name"
+      }
+    },
+    "eventHubNamespaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Event Hub Resource Group Name"
+      }
+    },
+    "eventHubNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Event Hub Namespace Name"
+      }
+    },
+    "eventHubName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Event hub"
+      }
+    },
+    "dataExportName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Monitor data export rule"
+      }
+    },
+    "dataExportTableNames": {
+      "type": "array",
+      "metadata": {
+        "description": "Name of the tables to export to Event Hub"
+      }
+    }
+  },
+  "variables": {
+    "logAnalyticsWorkspaceId": "[resourceId(parameters('logAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+    "eventHubsNamespaceId": "[resourceId(parameters('eventHubNamespaceResourceGroupName'), 'Microsoft.EventHub/namespaces', parameters('eventHubNamespaceName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/dataExports",
+      "apiVersion": "2020-08-01",
+      "name": "[concat(parameters('logAnalyticsWorkspaceName'), '/',parameters('dataExportName'))]",
+      "dependsOn": [
+      ],
+      "properties": {
+        "destination": {
+          "resourceId": "[variables('eventHubsNamespaceId')]",
+          "metaData": {
+            "eventHubName": "[parameters('eventHubName')]"
+          }
+        },
+        "tableNames": "[parameters('dataExportTableNames')]",
+        "enable": true
+      }
+    }
+  ]
+}

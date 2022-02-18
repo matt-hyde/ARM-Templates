@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "type": "String",
+      "allowedValues": [
+        "prd",
+        "tst",
+        "dev"
+      ],
+      "metadata": {
+        "description": "Environment Name"
+      }
+    },
+    "sqlServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the SQL Server"
+      }
+    },
+    "sqlDatabases": {
+      "type": "array",
+      "metadata": {
+        "description": "Array containing the SQL databases and config"
+      }
+    },
+    "sqlpublicNetworkAccess": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL Public Network Access Enabled or Disabled"
+      }
+    },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "SQL administrator username (stored in keyvault)"
+      }
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SQL administrator password (stored in keyvault)"
+      }
+    },
+    "sqlDatabaseBackupLongTermRetentionPolicies": {
+      "type": "object",
+      "metadata": {
+        "description": "SQL Database backup retention policies"
+      }
+    },
+    "resourceTags": {
+      "type": "object",
+      "metadata": {
+        "description": "Object containing Resource Tags."
+      }
+    }
+  },
+  "variables": {
+    "sqlEnableADS": true
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[parameters('sqlServerName')]",
+      "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "publicNetworkAccess": "[parameters('sqlpublicNetworkAccess')]",
+        "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]"
+      },
+      "resources": []
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(parameters('sqlServerName'),'/',parameters('sqlDatabases')[copyIndex()].databaseName)]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', concat(parameters('sqlServerName')))]"
+      ],
+      "copy": {
+        "count": "[length(parameters('sqlDatabases'))]",
+        "name": "sqlDatabaseCopy"
+      },
+      "sku": "[parameters('sqlDatabases')[copyIndex()].sqlDatabaseSku]",
+      "properties": "[parameters('sqlDatabases')[copyIndex()].sqlDatabaseProperties]",
+      "resources": []
+    }
+  ]
+}
